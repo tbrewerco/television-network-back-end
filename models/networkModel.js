@@ -1,25 +1,34 @@
-import knex from 'knex';
+import client from './db.js';
 
-const TABLE_NAME = 'network';
+class Network {
+    constructor(network) {
+        this.network_id = network.networkId;
+        this.network_name = network.networkName;
+    };
 
-const getAllNetworks = () => {
-    return knex(TABLE_NAME).select('*');
+    static async getAll(params, result) {
+        try {
+            await client.connect();
+            const packages = await client.query('SELECT * FROM network');
+            await client.end();
+            result(null, packages);
+        } catch (err) {
+            result(err, null);
+        };
+    };
+
+    static async findById(id) {
+    };
+
+    static async create(network) {
+    };
+
+    static async update(id, network) {
+    };
+
+    static async delete(id) {
+    };
+
 };
 
-const getNetworkById = (id) => {
-    return knex(TABLE_NAME).select('*').where({ id }).first();
-};
-
-const createNetwork = (network) => {
-    return knex(TABLE_NAME).insert(network).returning('*');
-};
-
-const updateNetwork = (id, network) => {
-    return knex(TABLE_NAME).update(network).where({ id }).returning('*');
-};
-
-const deleteNetwork = (id) => {
-    return knex(TABLE_NAME).delete().where({ id });
-};
-
-export { getAllNetworks, getNetworkById, createNetwork, updateNetwork, deleteNetwork };
+export default Network;

@@ -1,13 +1,10 @@
 import Network from '../models/networkModel.js';
 
 const getNetworks = async (req, res) => {
-    try {
-        const networks = await Network.getAll();
-        res.json(networks.rows);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500); Network
-    }
+    await Network.getAll(req, (err, data) => {
+        err && res.sendStatus(500);
+        res.json(data.rows);
+    });
 };
 
 const getSingleNetwork = async (req, res) => {
