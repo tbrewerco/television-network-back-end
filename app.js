@@ -2,8 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import networkRoutes from './routes/networkRoutes.js';
-import packageRoutes from './routes/packageRoutes.js';
-import showRoutes from './routes/showRoutes.js';
+// import packageRoutes from './routes/packageRoutes.js';
+// import showRoutes from './routes/showRoutes.js';
 
 const app = express();
 

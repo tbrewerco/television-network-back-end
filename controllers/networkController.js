@@ -1,6 +1,6 @@
-import { getAllNetworks, getNetworkById, createNetwork, updateNetwork, deleteNetworks } from '../models/network';
+import { getAllNetworks, getNetworkById, createNetwork, updateNetwork, deleteNetwork } from '../models/networkModel.js';
 
-const getAllNetworks = (req, res) => {
+const getNetworks = (req, res) => {
     getAllNetworks()
         .then((rows) => {
             res.json(rows);
@@ -11,7 +11,7 @@ const getAllNetworks = (req, res) => {
         });
 };
 
-const getNetworkById = (req, res) => {
+const getSingleNetwork = (req, res) => {
     const id = req.params.id;
     getNetworkById(id)
         .then((row) => {
@@ -27,7 +27,7 @@ const getNetworkById = (req, res) => {
         });
 };
 
-const createNetwork = (req, res) => {
+const createSingleNetwork = (req, res) => {
     const network = req.body;
     createNetwork(network)
         .then((row) => {
@@ -39,7 +39,7 @@ const createNetwork = (req, res) => {
         });
 };
 
-const updateNetwork = (req, res) => {
+const updateSingleNetwork = (req, res) => {
     const id = req.params.id;
     const network = req.body;
     updateNetwork(id, network)
@@ -52,7 +52,7 @@ const updateNetwork = (req, res) => {
         });
 };
 
-const deleteNetworks = (req, res) => {
+const deleteSingleNetwork = (req, res) => {
     const id = req.params.id;
     delete (id)
         .then(() => {
@@ -64,4 +64,4 @@ const deleteNetworks = (req, res) => {
         });
 };
 
-export { getAllNetworks, getNetworkById, createNetwork, updateNetwork, deleteNetworks };
+export { getNetworks, getSingleNetwork, createSingleNetwork, updateSingleNetwork, deleteSingleNetwork };

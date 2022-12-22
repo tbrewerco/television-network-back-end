@@ -22,4 +22,4 @@ const deleteNetwork = (id) => {
     return knex(TABLE_NAME).delete().where({ id });
 };
 
-export { getAll, getById, create, update, delete };
+export { getAllNetworks, getNetworkById, createNetwork, updateNetwork, deleteNetwork };
