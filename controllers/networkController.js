@@ -1,19 +1,18 @@
-import { getAllNetworks, getNetworkById, createNetwork, updateNetwork, deleteNetwork } from '../models/networkModel.js';
+import Network from '../models/networkModel.js';
 
-const getNetworks = (req, res) => {
-    getAllNetworks()
-        .then((rows) => {
-            res.json(rows);
-        })
-        .catch((error) => {
-            console.error(error);
-            res.sendStatus(500); Network
-        });
+const getNetworks = async (req, res) => {
+    try {
+        const networks = await Network.getAll();
+        res.json(networks.rows);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500); Network
+    }
 };
 
-const getSingleNetwork = (req, res) => {
+const getSingleNetwork = async (req, res) => {
     const id = req.params.id;
-    getNetworkById(id)
+    const network = await Network.findById(id)
         .then((row) => {
             if (row) {
                 res.json(row);
@@ -27,9 +26,9 @@ const getSingleNetwork = (req, res) => {
         });
 };
 
-const createSingleNetwork = (req, res) => {
+const createSingleNetwork = async (req, res) => {
     const network = req.body;
-    createNetwork(network)
+    Network.create(network)
         .then((row) => {
             res.status(201).json(row);
         })
@@ -39,10 +38,10 @@ const createSingleNetwork = (req, res) => {
         });
 };
 
-const updateSingleNetwork = (req, res) => {
+const updateSingleNetwork = async (req, res) => {
     const id = req.params.id;
     const network = req.body;
-    updateNetwork(id, network)
+    Network.update(id, network)
         .then((row) => {
             if (row) {
                 res.json(row);
@@ -52,9 +51,9 @@ const updateSingleNetwork = (req, res) => {
         });
 };
 
-const deleteSingleNetwork = (req, res) => {
+const deleteSingleNetwork = async (req, res) => {
     const id = req.params.id;
-    delete (id)
+    Network.delete(id)
         .then(() => {
             res.sendStatus(204);
         })
