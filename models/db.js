@@ -1,4 +1,6 @@
-const Pool = require('pg').Pool;
+import pg from 'pg'
+const { Client } = pg
 import dbConfig from '../config/dbConfig.js';
 
-export const pool = new Pool(dbConfig);
+const client = new Client(dbConfig);
+export default client;
