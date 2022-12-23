@@ -14,4 +14,17 @@ const getShows = async (req, res) => {
     });
 };
 
-export { getShows };
+const getSingleShow = async (req, res) => {
+    const id = req.params.id;
+    await Show.findById(id, (err, data) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        if (!data?.rows?.length) res.sendStatus(404);
+        else res.json(data.rows);
+    });
+};
+
+export { getShows, getSingleShow };

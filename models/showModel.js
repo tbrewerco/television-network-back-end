@@ -41,6 +41,21 @@ class Show {
         await client.end();
     };
 
+    static async findById(id, result) {
+        const client = new Client(dbConfig);
+        const text = 'SELECT * FROM show WHERE show_id = $1';
+        const values = [id];
+        try {
+            await client.connect();
+            const show = await client.query(text, values);
+            if (show.error) result(show.error);
+            else result(null, show);
+        } catch (err) {
+            result(err, null);
+        };
+        client.end();
+    };
+
 };
 
 export default Show;
