@@ -25,4 +25,19 @@ const getSinglePackage = async (req, res) => {
     });
 };
 
-export { getPackages, getSinglePackage };
+const createSinglePackage = async (req, res) => {
+    const packageName = req.body.packageName;
+    const packagePrice = req.body.packagePrice;
+    const networks = req.body.networks;
+    await Package.create(packageName, packagePrice, networks, (err, data) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        if (!data) res.sendStatus(404);
+        else res.json(data);
+    });
+};
+
+export { getPackages, getSinglePackage, createSinglePackage };

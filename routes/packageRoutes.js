@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', packageController.getPackages);
 router.get('/:id', packageController.getSinglePackage);
-// router.post('/', packageController.createSinglePackage);
+router.post('/', packageController.createSinglePackage);
 // router.put('/:id', packageController.updateSinglePackage);
 // router.delete('/:id', packageController.deleteSinglePackage);
 

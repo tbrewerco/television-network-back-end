@@ -93,6 +93,51 @@ class Package {
         await client.end();
     };
 
+    static async create(packageName, packagePrice, networks, result) {
+        const client = new Client(dbConfig);
+        try {
+            await client.connect();
+            // begin the transaction which will create package and add networks to package_network table
+            await client.query('BEGIN');
+            // insert a new package
+            const res = await client.query({
+                text: 'INSERT INTO package (package_name, package_price) VALUES ($1, $2) RETURNING *;',
+                values: [packageName, packagePrice]
+            });
+            if (res.error) {
+                await client.query('ROLLBACK');
+                result(res.error);
+            } else {
+                // get the package id of the newly inserted package
+                const packageId = res.rows[0].package_id;
+                // function that inserts into package_network
+                const insertPkgNetwork = async (packageId, networkId) => {
+                    const res2 = await client.query({
+                        text: 'INSERT INTO package_network (package_id, network_id) VALUES ($1, $2);',
+                        values: [packageId, networkId]
+                    });
+                    if (res2.error) {
+                        // roll back database transaction in case of error
+                        await client.query('ROLLBACK');
+                        result(res2.error);
+                    };
+                };
+                // insert into package_network
+                await networks.forEach(async networkId => {
+                    await insertPkgNetwork(packageId, networkId);
+                });
+            };
+            // commit the transaction
+            await client.query('COMMIT');
+            result(null, res.rows[0]);
+        } catch (err) {
+            // rollback if error
+            await client.query('ROLLBACK');
+            result(err);
+        };
+        await client.end();
+    };
+
 };
 
 export default Package;
