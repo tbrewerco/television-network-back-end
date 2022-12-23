@@ -90,6 +90,37 @@ class Show {
         await client.end();
     };
 
+    static async update(showId, title, imdbRating, networkId, result) {
+        const client = new Client(dbConfig);
+        try {
+          await client.connect();
+          await client.query('BEGIN');
+          const res = await client.query({
+            text: 'UPDATE show SET title=$1, imdb_rating=$2 WHERE show_id=$3 RETURNING *;',
+            values: [title, imdbRating, showId]
+          });
+          if (res.error) {
+            await client.query('ROLLBACK');
+            result(res.error);
+          } else {
+            const res2 = await client.query({
+              text: 'UPDATE show_network SET network_id=$1 WHERE show_id=$2;',
+              values: [networkId, showId]
+            });
+            if (res2.error) {
+              await client.query('ROLLBACK');
+              result(res2.error);
+            };
+          };
+          await client.query('COMMIT');
+          result(null, res.rows[0]);
+        } catch (err) {
+          await client.query('ROLLBACK');
+          result(err);
+        }
+        await client.end();
+      };
+
 };
 
 export default Show;

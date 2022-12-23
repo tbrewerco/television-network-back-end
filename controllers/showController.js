@@ -42,4 +42,20 @@ const createSingleShow = async (req, res) => {
     });
 };
 
-export { getShows, getSingleShow, createSingleShow };
+const updateSingleShow = async (req, res) => {
+    const showId = req.params.id;
+    const title = req.body.title;
+    const imdbRating = req.body.imdbRating;
+    const networkId = req.body.networkId;
+    await Show.update(showId, title, imdbRating, networkId, (err, data) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        if (!data) res.sendStatus(404);
+        else res.json(data);
+    });
+};
+
+export { getShows, getSingleShow, createSingleShow, updateSingleShow };
