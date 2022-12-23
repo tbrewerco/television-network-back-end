@@ -121,6 +121,33 @@ class Show {
         await client.end();
       };
 
+      static async delete(showId, result) {
+        const client = new Client(dbConfig);
+        try {
+            await client.connect();
+            await client.query('BEGIN');
+            await client.query({
+                text: 'DELETE FROM show_network WHERE show_id = $1;',
+                values: [showId]
+            });
+            const res = await client.query({
+                text: 'DELETE FROM show WHERE show_id = $1 RETURNING *;',
+                values: [showId]
+            });
+            if (res.error) {
+                await client.query('ROLLBACK');
+                result(res.error);
+            } else {
+                await client.query('COMMIT');
+                result(null, res.rows[0]);
+            }
+        } catch (err) {
+            await client.query('ROLLBACK');
+            result(err);
+        }
+        await client.end();
+    };
+    
 };
 
 export default Show;

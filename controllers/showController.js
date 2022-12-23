@@ -58,4 +58,17 @@ const updateSingleShow = async (req, res) => {
     });
 };
 
-export { getShows, getSingleShow, createSingleShow, updateSingleShow };
+const deleteSingleShow = async (req, res) => {
+    const showId = req.params.id;
+    await Show.delete(showId, (err, data) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        if (data === 0) res.sendStatus(404);
+        else res.sendStatus(200);
+    });
+};
+
+export { getShows, getSingleShow, createSingleShow, updateSingleShow, deleteSingleShow };
