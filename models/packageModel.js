@@ -101,8 +101,9 @@ class Package {
         if (res2.error) {
             // roll back database transaction in case of error
             await client.query('ROLLBACK');
-            result(res2.error);
-        };
+            return { error: res2.error }
+        }
+        return;
     };
 
     static async create(packageName, packagePrice, networks, result) {
@@ -111,7 +112,6 @@ class Package {
             await client.connect();
             // begin the transaction which will create package and add networks to package_network table
             await client.query('BEGIN');
-            // insert a new package
             const res = await client.query({
                 text: 'INSERT INTO package (package_name, package_price) VALUES ($1, $2) RETURNING *;',
                 values: [packageName, packagePrice]
@@ -121,14 +121,14 @@ class Package {
                 result(res.error);
             }
             if (networks.length) {
-                // get the package id of the newly inserted package
                 const packageId = res.rows[0].package_id;
-                // function that inserts into package_network
-
-                // insert into package_network
-                await networks.forEach(async networkId => {
+                const packageNetworkQry = await networks.forEach(async networkId => {
                     await this.insertPkgNetwork(packageId, networkId, client);
                 });
+                if (packageNetworkQry?.error) {
+                    await client.query('ROLLBACK');
+                    result(packageNetworkQry?.error);
+                };
             };
             // commit the transaction
             await client.query('COMMIT');
@@ -140,6 +140,54 @@ class Package {
         };
         await client.end();
     };
+
+    static async update(packageId, packageName, packagePrice, networks, result) {
+        const client = new Client(dbConfig);
+        try {
+            await client.connect();
+            // begin the transaction which will update package and update networks in package_network table
+            await client.query('BEGIN');
+            // update the package
+            const res = await client.query({
+                text: 'UPDATE package SET package_name = $1, package_price = $2 WHERE package_id = $3 RETURNING *;',
+                values: [packageName, packagePrice, packageId]
+            });
+            if (res.error) {
+                await client.query('ROLLBACK');
+                result(res.error);
+            } else {
+                // delete all existing rows in package_network for the package
+                const deleteRes = await client.query({
+                    text: 'DELETE FROM package_network WHERE package_id = $1;',
+                    values: [packageId]
+                });
+                if (deleteRes.error) {
+                    // roll back database transaction in case of error
+                    await client.query('ROLLBACK');
+                    result(deleteRes.error);
+                }
+                if (networks.length) {
+                    const packageId = res.rows[0].package_id;
+                    const packageNetworkQry = await networks.forEach(async networkId => {
+                        await this.insertPkgNetwork(packageId, networkId, client);
+                    });
+                    if (packageNetworkQry?.error) {
+                        await client.query('ROLLBACK');
+                        result(packageNetworkQry?.error);
+                    };
+                };
+            };
+            // commit the transaction
+            await client.query('COMMIT');
+            result(null, res.rows[0]);
+        } catch (err) {
+            // rollback if error
+            await client.query('ROLLBACK');
+            result(err);
+        };
+        await client.end();
+    };
+
 
 };
 
