@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import networkRoutes from './routes/networkRoutes.js';
 import packageRoutes from './routes/packageRoutes.js';
-// import showRoutes from './routes/showRoutes.js';
+import showRoutes from './routes/showRoutes.js';
 
 const app = express();
 
@@ -16,6 +16,6 @@ app.use(bodyParser.json());
 // routes
 app.use('/networks', networkRoutes);
 app.use('/packages', packageRoutes);
-// app.use('/shows', showRoutes);
+app.use('/shows', showRoutes);
 
 export default app;
