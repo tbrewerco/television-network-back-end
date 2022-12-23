@@ -51,7 +51,19 @@ class Network {
         client.end();
     };
 
-    static async update(id, network) {
+    static async update(name, id, result) {
+        const client = new Client(dbConfig);
+        const text = 'UPDATE network SET network_name = $1 WHERE networK_id = $2 RETURNING *;';
+        const values = [name, id];
+        try {
+            await client.connect();
+            const pkg = await client.query(text, values);
+            if (pkg.error) result(pkg.error);
+            else result(null, pkg);
+        } catch (err) {
+            result(err, null);
+        };
+        client.end();
     };
 
     static async delete(id) {

@@ -39,16 +39,17 @@ const createSingleNetwork = async (req, res) => {
 };
 
 const updateSingleNetwork = async (req, res) => {
-    const id = req.params.id;
-    const network = req.body;
-    Network.update(id, network)
-        .then((row) => {
-            if (row) {
-                res.json(row);
-            } else {
-                res.sendStatus(404);
-            };
-        });
+    const networkName = req.body.networkName;
+    const networkId = req.params.id;
+    await Network.update(networkName, networkId, (err, data) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        if (!data.rows.length) res.sendStatus(404);
+        else res.json(data.rows);
+    });
 };
 
 const deleteSingleNetwork = async (req, res) => {
