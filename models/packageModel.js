@@ -188,6 +188,38 @@ class Package {
         await client.end();
     };
 
+    static async delete(packageId, result) {
+        const client = new Client(dbConfig);
+        try {
+            let rowCount = 0;
+            await client.connect();
+            await client.query('BEGIN');
+            const res1 = await client.query({
+                text: 'DELETE FROM package_network WHERE package_id = $1;',
+                values: [packageId]
+            });
+            if (res1.error) {
+                await client.query('ROLLBACK');
+                result(res1.error);
+            } else {
+                const res2 = await client.query({
+                    text: 'DELETE FROM package WHERE package_id = $1;',
+                    values: [packageId]
+                });
+                if (res2.error) {
+                    await client.query('ROLLBACK');
+                    result(res2.error);
+                };
+                rowCount = res2.rowCount;
+            }
+            await client.query('COMMIT');
+            result(null, rowCount);
+        } catch (err) {
+            await client.query('ROLLBACK');
+            result(err);
+        };
+        await client.end();
+    };
 
 };
 

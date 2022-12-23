@@ -59,4 +59,17 @@ const updateSinglePackage = async (req, res) => {
     };
 };
 
-export { getPackages, getSinglePackage, createSinglePackage, updateSinglePackage };
+const deleteSinglePackage = async (req, res) => {
+    const packageId = req.params.id;
+    await Package.delete(packageId, (err, data) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        if (data === 0) res.sendStatus(404);
+        else res.sendStatus(200);
+    });
+};
+
+export { getPackages, getSinglePackage, createSinglePackage, updateSinglePackage, deleteSinglePackage };
