@@ -53,7 +53,7 @@ class Network {
 
     static async update(name, id, result) {
         const client = new Client(dbConfig);
-        const text = 'UPDATE network SET network_name = $1 WHERE networK_id = $2 RETURNING *;';
+        const text = 'UPDATE network SET network_name = $1 WHERE network_id = $2 RETURNING *;';
         const values = [name, id];
         try {
             await client.connect();
@@ -66,7 +66,19 @@ class Network {
         client.end();
     };
 
-    static async delete(id) {
+    static async delete(id, result) {
+        const client = new Client(dbConfig);
+        const text = 'DELETE FROM network WHERE network_id = $1;';
+        const values = [id];
+        try {
+            await client.connect();
+            const pkg = await client.query(text, values);
+            if (pkg.error) result(pkg.error);
+            else result(null, pkg.rowCount);
+        } catch (err) {
+            result(err, null);
+        };
+        client.end();
     };
 
 };

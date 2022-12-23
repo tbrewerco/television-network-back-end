@@ -54,14 +54,15 @@ const updateSingleNetwork = async (req, res) => {
 
 const deleteSingleNetwork = async (req, res) => {
     const id = req.params.id;
-    Network.delete(id)
-        .then(() => {
-            res.sendStatus(204);
-        })
-        .catch((error) => {
-            console.error(error);
+    await Network.delete(id, (err, data) => {
+        if (err) {
+            console.error(err);
             res.sendStatus(500);
-        });
+            return;
+        }
+        if (data === 0) res.sendStatus(404);
+        else res.json(`Network with id ${id} deleted.`);
+    });
 };
 
 export { getNetworks, getSingleNetwork, createSingleNetwork, updateSingleNetwork, deleteSingleNetwork };
