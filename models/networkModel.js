@@ -13,7 +13,8 @@ class Network {
         try {
             await client.connect();
             const packages = await client.query('SELECT * FROM network');
-            result(null, packages);
+            if (packages.error) result(packages.error)
+            else result(null, packages);
         } catch (err) {
             result(err, null);
         };
@@ -27,14 +28,27 @@ class Network {
         try {
             await client.connect();
             const pkg = await client.query(text, values);
-            result(null, pkg);
+            if (pkg.error) result(pkg.error);
+            else result(null, pkg);
         } catch (err) {
             result(err, null);
         };
         client.end();
     };
 
-    static async create(network) {
+    static async create(networkName, result) {
+        const client = new Client(dbConfig);
+        const text = 'INSERT INTO network (network_name) VALUES ($1) RETURNING *';
+        const values = [networkName];
+        try {
+            await client.connect();
+            const pkg = await client.query(text, values);
+            if (pkg.error) result(pkg.error);
+            else result(null, pkg);
+        } catch (err) {
+            result(err, null);
+        };
+        client.end();
     };
 
     static async update(id, network) {

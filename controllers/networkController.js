@@ -5,8 +5,9 @@ const getNetworks = async (req, res) => {
         if (err) {
             console.error(err);
             res.sendStatus(500);
+            return;
         }
-        if (!data.rows.length) res.sendStatus(404);
+        if (!data?.rows?.length) res.sendStatus(404);
         else res.json(data.rows);
     });
 };
@@ -17,22 +18,24 @@ const getSingleNetwork = async (req, res) => {
         if (err) {
             console.error(err);
             res.sendStatus(500);
+            return;
         }
-        if (!data.rows.length) res.sendStatus(404);
+        if (!data?.rows?.length) res.sendStatus(404);
         else res.json(data.rows);
     });
 };
 
 const createSingleNetwork = async (req, res) => {
-    const network = req.body;
-    Network.create(network)
-        .then((row) => {
-            res.status(201).json(row);
-        })
-        .catch((error) => {
-            console.error(error);
+    const networkName = req.body.networkName;
+    await Network.create(networkName, (err, data) => {
+        if (err) {
+            console.error(err);
             res.sendStatus(500);
-        });
+            return;
+        }
+        if (!data.rows.length) res.sendStatus(404);
+        else res.json(data.rows);
+    });
 };
 
 const updateSingleNetwork = async (req, res) => {
