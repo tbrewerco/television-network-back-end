@@ -52,6 +52,47 @@ class Package {
         await client.end();
     };
 
+    static async findById(id, result) {
+        // create a new database client
+        const client = new Client(dbConfig);
+        try {
+            await client.connect();
+            const res = await client.query(`
+                SELECT p.package_id, p.package_name, p.package_price, n.network_id, n.network_name
+                FROM package p
+                INNER JOIN package_network pn ON p.package_id = pn.package_id
+                INNER JOIN network n ON pn.network_id = n.network_id
+                WHERE p.package_id = $1;
+            `, [id]);
+            if (res.error) result(res.error)
+            else {
+                const pkg = {};
+                res.rows.forEach(row => {
+                    // get the package id for the current row
+                    const pkgId = row.package_id;
+                    // if the package does not yet have a property with the same id as the current package, add a new package
+                    if (!pkg[pkgId]) {
+                        pkg[pkgId] = {
+                            package_id: pkgId,
+                            package_name: row.package_name,
+                            package_price: row.package_price,
+                            networks: []
+                        };
+                    }
+                    // add the current network to the package object's networks array
+                    pkg[pkgId].networks.push({
+                        network_id: row.network_id,
+                        network_name: row.network_name
+                    });
+                });
+                result(null, Object.values(pkg)[0]);
+            }
+        } catch (err) {
+            result(err, null);
+        };
+        await client.end();
+    };
+
 };
 
 export default Package;
