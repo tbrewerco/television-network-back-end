@@ -93,6 +93,18 @@ class Package {
         await client.end();
     };
 
+    static insertPkgNetwork = async (packageId, networkId, client) => {
+        const res2 = await client.query({
+            text: 'INSERT INTO package_network (package_id, network_id) VALUES ($1, $2);',
+            values: [packageId, networkId]
+        });
+        if (res2.error) {
+            // roll back database transaction in case of error
+            await client.query('ROLLBACK');
+            result(res2.error);
+        };
+    };
+
     static async create(packageName, packagePrice, networks, result) {
         const client = new Client(dbConfig);
         try {
@@ -107,24 +119,15 @@ class Package {
             if (res.error) {
                 await client.query('ROLLBACK');
                 result(res.error);
-            } else {
+            }
+            if (networks.length) {
                 // get the package id of the newly inserted package
                 const packageId = res.rows[0].package_id;
                 // function that inserts into package_network
-                const insertPkgNetwork = async (packageId, networkId) => {
-                    const res2 = await client.query({
-                        text: 'INSERT INTO package_network (package_id, network_id) VALUES ($1, $2);',
-                        values: [packageId, networkId]
-                    });
-                    if (res2.error) {
-                        // roll back database transaction in case of error
-                        await client.query('ROLLBACK');
-                        result(res2.error);
-                    };
-                };
+
                 // insert into package_network
                 await networks.forEach(async networkId => {
-                    await insertPkgNetwork(packageId, networkId);
+                    await this.insertPkgNetwork(packageId, networkId, client);
                 });
             };
             // commit the transaction
