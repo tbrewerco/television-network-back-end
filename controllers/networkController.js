@@ -2,26 +2,25 @@ import Network from '../models/networkModel.js';
 
 const getNetworks = async (req, res) => {
     await Network.getAll(req, (err, data) => {
-        err && res.sendStatus(500);
-        !data && res.sendStatus(404);
-        res.json(data);
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+        }
+        if (!data.rows.length) res.sendStatus(404);
+        else res.json(data.rows);
     });
 };
 
 const getSingleNetwork = async (req, res) => {
     const id = req.params.id;
-    const network = await Network.findById(id)
-        .then((row) => {
-            if (row) {
-                res.json(row);
-            } else {
-                res.sendStatus(404);
-            };
-        })
-        .catch((error) => {
-            console.error(error);
+    await Network.findById(id, (err, data) => {
+        if (err) {
+            console.error(err);
             res.sendStatus(500);
-        });
+        }
+        if (!data.rows.length) res.sendStatus(404);
+        else res.json(data.rows);
+    });
 };
 
 const createSingleNetwork = async (req, res) => {
