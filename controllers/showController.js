@@ -27,4 +27,19 @@ const getSingleShow = async (req, res) => {
     });
 };
 
-export { getShows, getSingleShow };
+const createSingleShow = async (req, res) => {
+    const title = req.body.title;
+    const imdbRating = req.body.imdbRating;
+    const networkId = req.body.networkId;
+    await Show.create(title, imdbRating, networkId, (err, data) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        if (!data) res.sendStatus(404);
+        else res.json(data);
+    });
+};
+
+export { getShows, getSingleShow, createSingleShow };

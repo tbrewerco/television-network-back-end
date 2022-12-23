@@ -56,6 +56,40 @@ class Show {
         client.end();
     };
 
+    static async create(title, imdbRating, networkId, result) {
+        const client = new Client(dbConfig);
+        try {
+            await client.connect();
+            await client.query('BEGIN');
+            // insert a new show
+            const res = await client.query({
+                text: 'INSERT INTO show (title, imdb_rating) VALUES ($1, $2) RETURNING *;',
+                values: [title, imdbRating]
+            });
+            if (res.error) {
+                await client.query('ROLLBACK');
+                result(res.error);
+            } else {
+                const showId = res.rows[0].show_id;
+                // insert into show_network
+                const res2 = await client.query({
+                    text: 'INSERT INTO show_network (show_id, network_id) VALUES ($1, $2);',
+                    values: [showId, networkId]
+                });
+                if (res2.error) {
+                    await client.query('ROLLBACK');
+                    result(res2.error);
+                };
+            };
+            await client.query('COMMIT');
+            result(null, res.rows[0]);
+        } catch (err) {
+            await client.query('ROLLBACK');
+            result(err);
+        }
+        await client.end();
+    };
+
 };
 
 export default Show;
