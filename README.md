@@ -1,6 +1,6 @@
-# Backend Code Challenge
+# Television Network Back End
 
-Welcome to our backend app for managing packages, shows, and networks. In this app, you can perform CRUD (create, read, update, delete) operations on each of these entities.
+Welcome to my backend app for managing packages, shows, and networks. In this app, you can perform CRUD (create, read, update, delete) operations on each of these entities.
 
 ## Using the app
 <br/>
